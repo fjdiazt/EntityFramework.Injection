@@ -61,19 +61,19 @@ namespace EntityFramework.Inject.Spec.Localization
 			
 			int assemblyCount = AppDomain.CurrentDomain.GetAssemblies().Length;
 
-			var types = _factory.CreateTypes(new InjectionSet(injection), typeof(TestDbContext1), typeof(TestDbContext2));
+			var types = _factory.CreateTypes(new InjectionSet(injection), null, typeof(TestDbContext1), typeof(TestDbContext2));
 			Assert.That(types.Length, Is.EqualTo(2));
 			Assert.That(AppDomain.CurrentDomain.GetAssemblies().Length, Is.EqualTo(assemblyCount + 1));
 			var type1 = types[0];
 			var type2 = types[1];
 
-			types = _factory.CreateTypes(new InjectionSet(injection), typeof(TestDbContext3), typeof(TestDbContext2));
+			types = _factory.CreateTypes(new InjectionSet(injection), null, typeof(TestDbContext3), typeof(TestDbContext2));
 			Assert.That(types.Length, Is.EqualTo(2));
 			Assert.That(types[1], Is.EqualTo(type2));
 			
 			Assert.That(AppDomain.CurrentDomain.GetAssemblies().Length, Is.EqualTo(assemblyCount + 2));
 
-			types = _factory.CreateTypes(new InjectionSet(injection), typeof(TestDbContext1), typeof(TestDbContext3));
+			types = _factory.CreateTypes(new InjectionSet(injection), null, typeof(TestDbContext1), typeof(TestDbContext3));
 			Assert.That(types.Length, Is.EqualTo(2));
 			Assert.That(types[0], Is.EqualTo(type1));
 			
@@ -95,5 +95,14 @@ namespace EntityFramework.Inject.Spec.Localization
 			});
 			helper.Run(10);
 		}
+
+	    [Test]
+	    public void Should_pass_constructor_parameter_to_context()
+	    {
+            var injectionSet = new InjectionSet();
+	        var context = _factory.Create<TestDbContext>(injectionSet, new object[] { "EntityFrameworkInject", "someOtherParameter" } );
+
+            Assert.That(context.SomeOtherParameter, Is.EqualTo("someOtherParameter"));
+	    }
 	}
 }
